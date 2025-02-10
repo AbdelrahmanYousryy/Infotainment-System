@@ -1,74 +1,60 @@
-#include "MediaPlayerBackend.h"
-#include <QDir>  // ✅ Ensure QDir is included
+#include "CameraBackend.h"
+#include <QProcess>
+#include <QImage>
+#include <QTimer>
 #include <QDebug>
-#include <QCoreApplication>
 
-MediaPlayerBackend::MediaPlayerBackend(QObject *parent) : QObject(parent) {
-    player = new QMediaPlayer(this);
-    player->setVolume(100);  // ✅ Set volume to max
+CameraBackend::CameraBackend(QObject *parent) : QObject(parent), cameraActive(false), gstProcess(nullptr)
+{
+    captureTimer = new QTimer(this);
+    connect(captureTimer, &QTimer::timeout, this, [this]() {
+        // Simulate frame capture (replace with actual frame capture logic)
+        QImage img(640, 480, QImage::Format_RGB888);  // Dummy image
+        img.fill(Qt::black);  // Dummy black frame
+        emit frameCaptured(img);  // Emit the dummy frame to QML
+    });
 }
 
-// ✅ Implement `getSongs()`
-QStringList MediaPlayerBackend::getSongs() {
-    QString musicFolder = "/home/yousry/InfotainmentGUI/songs";
-    QDir directory(musicFolder);
+CameraBackend::~CameraBackend()
+{
+    stopCamera();
+}
 
-    if (!directory.exists()) {
-        qDebug() << "❌ Songs folder does not exist: " << musicFolder;
-        return QStringList();
+void CameraBackend::startCamera()
+{
+    if (cameraActive)
+        return;
+
+    gstProcess = new QProcess(this);
+
+    // ✅ Correct GStreamer pipeline for MJPG-supported cameras
+    QString pipeline = "gst-launch-1.0 v4l2src device=/dev/video0 ! image/jpeg ! jpegdec ! autovideosink";
+
+    gstProcess->start(pipeline);
+
+    if (!gstProcess->waitForStarted()) {
+        qDebug() << "Error: GStreamer failed to start.";
+        return;
     }
 
-    QStringList filters;
-    filters << "*.mp3" << "*.wav"; // ✅ Only show audio files
-    QStringList songList = directory.entryList(filters, QDir::Files);
-
-    qDebug() << "✅ Songs found:" << songList;
-    return songList;
+    cameraActive = true;
+    qDebug() << "✅ Camera started successfully!";
 }
 
-// ✅ Ensure `playMedia()` is correctly implemented
-void MediaPlayerBackend::playMedia(const QString &filename) {
-    if (filename.isEmpty()) {
-            qDebug() << "Error: No song selected!";
-            return;
-        }
-    // ✅ Save the last played song
-     currentSong = filename;
+void CameraBackend::stopCamera()
+{
+    if (!cameraActive)
+        return;
 
-    QString filePath = "/home/yousry/InfotainmentGUI/songs/" + filename;
-    qDebug() << "Playing media:" << filePath;
+    captureTimer->stop();
+    if (gstProcess && gstProcess->state() == QProcess::Running)
+        gstProcess->terminate();
 
-    player->setMedia(QUrl::fromLocalFile(filePath));
-
-    if (player->mediaStatus() == QMediaPlayer::NoMedia) {
-        qDebug() << "❌ ERROR: No media loaded!";
-    }
-
-    player->play();
+    cameraActive = false;
+    qDebug() << "Camera stopped";
 }
 
-// ✅ Pause & Stop functions
-void MediaPlayerBackend::pauseMedia() {
-    if (player->state() == QMediaPlayer::PlayingState) {
-            player->pause();
-        }
- //   player->pause();
-    emit stateChanged();
-}
-
-void MediaPlayerBackend::stopMedia() {
-    player->stop();
-    emit stateChanged();
-}
-
-bool MediaPlayerBackend::isPlaying() {
-    return player->state() == QMediaPlayer::PlayingState;
-}
-
-void MediaPlayerBackend::resumeMedia() {
-    if (!currentSong.isEmpty()) {
-        playMedia(currentSong);  // ✅ Resume last song instead of restarting
-    } else {
-        qDebug() << "Error: No last song available!";
-    }
+bool CameraBackend::isCameraActive() const
+{
+    return cameraActive;
 }

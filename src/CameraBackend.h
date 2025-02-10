@@ -1,30 +1,29 @@
-#ifndef MEDIAPLAYERBACKEND_H
-#define MEDIAPLAYERBACKEND_H
+#ifndef CAMERA_BACKEND_H
+#define CAMERA_BACKEND_H
 
 #include <QObject>
-#include <QMediaPlayer>
+#include <QProcess>
+#include <QImage>
+#include <QTimer>
 
-class MediaPlayerBackend : public QObject {
+class CameraBackend : public QObject
+{
     Q_OBJECT
-    Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY stateChanged)
-
 public:
-    explicit MediaPlayerBackend(QObject *parent = nullptr);
+    explicit CameraBackend(QObject *parent = nullptr);
+    ~CameraBackend();
 
-    Q_INVOKABLE QStringList getSongs();  // ✅ Returns available songs
-    Q_INVOKABLE void playMedia(const QString &filename);
-    Q_INVOKABLE void pauseMedia();
-    Q_INVOKABLE void stopMedia();
-
-    bool isPlaying();
-    Q_INVOKABLE void resumeMedia();
+    Q_INVOKABLE void startCamera();  // Make this function invokable from QML
+    Q_INVOKABLE void stopCamera();
+    Q_INVOKABLE bool isCameraActive() const;
 
 signals:
-    void stateChanged();
+    void frameCaptured(const QImage &image);
 
 private:
-    QMediaPlayer *player;
-    QString currentSong;
+    bool cameraActive;
+    QProcess *gstProcess;
+    QTimer *captureTimer;
 };
 
-#endif // MEDIAPLAYERBACKEND_H
+#endif // CAMERA_BACKEND_H

@@ -1,4 +1,0 @@
-#ifndef CAMERABACKEND_H
-#define CAMERABACKEND_H
-
-#endif // CAMERABACKEND_H

@@ -1,7 +1,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.12
+import QtQuick.Layouts 1.12  // Layout for arranging elements
 import QtGraphicalEffects 1.12  // Required for text shadows
+import QtMultimedia 5.12
 
 Item {
     id: assist
@@ -125,12 +126,9 @@ Item {
 
             // Camera Button
             Item {
-                width: 120  // Adjusted size for camera button
+                width: 120
                 height: 120
-                Layout.preferredWidth: 100
-                Layout.preferredHeight: 120
 
-                // Camera Icon and Text inside a Column
                 Column {
                     anchors.centerIn: parent
                     spacing: 10
@@ -158,16 +156,20 @@ Item {
                         }
                     }
                 }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        cameraBackend.startCamera();  // Call backend function to start camera
+                    }
+                }
             }
 
             // Lane Assist Button
             Item {
-                width: 120  // Adjusted size for lane assist button
+                width: 120
                 height: 120
-                Layout.preferredWidth: 100
-                Layout.preferredHeight: 120
 
-                // Lane Assist Icon and Text inside a Column
                 Column {
                     anchors.centerIn: parent
                     spacing: 10
@@ -198,4 +200,16 @@ Item {
             }
         }
     }
+
+    // Camera feed (use QML Image to display frames here)
+    VideoOutput {
+        id: cameraView
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width * 0.8
+        height: parent.height * 0.6
+        fillMode: VideoOutput.PreserveAspectCrop
+        visible: cameraBackend.isCameraActive()
+    }
+
 }

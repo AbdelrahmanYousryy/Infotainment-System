@@ -16,5 +16,8 @@
         <file>qml/assist.qml</file>
         <file>images/lane.png</file>
         <file>images/camera.png</file>
+        <file>qml/CameraView.qml</file>
+        <file>src/CameraBackend.h</file>
+        <file>src/CameraBackend.cpp</file>
     </qresource>
 </RCC>
