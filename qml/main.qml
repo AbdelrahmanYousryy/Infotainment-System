@@ -24,6 +24,10 @@ ApplicationWindow {
         console.log("Media Player Opened!");
         stackView.push(Qt.createComponent("MediaPlayer.qml"));
     }
+    function openAssist() {
+        console.log("Assistance Screen Opened!");
+        stackView.push(Qt.createComponent("assist.qml"));
+    }
 
 
     Component {
@@ -42,8 +46,7 @@ ApplicationWindow {
             Text {
                 id: dateTime
                 text: Qt.formatDateTime(new Date(), "dddd, dd MMM yyyy - hh:mm AP")
-                font.pixelSize: 28
-                font.bold: true
+                font.pixelSize: 24
                 font.family: "Roboto"
                 color: "#111111"
                 horizontalAlignment: Text.AlignHCenter
@@ -101,7 +104,7 @@ ApplicationWindow {
                             model: [
                                 { "name": "GPS", "icon": "qrc:/images/gps.png", "action": "openGPS" },
                                 { "name": "Media", "icon": "qrc:/images/media.png", "action":"openMedia" },
-                                { "name": "Assist", "icon": "qrc:/images/assist.png" },
+                                { "name": "Assist", "icon": "qrc:/images/assist.png","action":"openAssist" },
                                 { "name": "Settings", "icon": "qrc:/images/settings.png" }
                             ]
 
@@ -152,6 +155,10 @@ ApplicationWindow {
                                         }else if (modelData.action === "openMedia")
                                         {
                                             openMedia();
+
+                                        }else if (modelData.action === "openAssist")
+                                        {
+                                            openAssist();
 
                                         }else {
                                             console.log("No function assigned to " + modelData.name);

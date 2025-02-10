@@ -13,5 +13,8 @@
         <file>src/MediaPlayerBackend.h</file>
         <file>images/play.png</file>
         <file>images/pause.png</file>
+        <file>qml/assist.qml</file>
+        <file>images/lane.png</file>
+        <file>images/camera.png</file>
     </qresource>
 </RCC>
